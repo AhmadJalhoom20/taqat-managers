@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول - الإدارة</title>
+  <style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+  }
+
+  .login {
+    max-width: 400px;
+    margin: 80px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 15px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+
+  .error-msg {
+    color: red;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  button {
+    background: #007bff;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background: #0056b3;
+  }
+
+  #dashboard {
+    display: none;
+    padding: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+  }
+
+  .stat h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #007bff;
+  }
+
+  .stat p {
+    margin: 5px 0 0;
+    color: #333;
+  }
+
+  .table-container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  table th, table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  table th {
+    background: #f0f0f0;
+    font-weight: 600;
+  }
+
+  .admin-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .make-admin {
+    background: #28a745;
+    color: white;
+  }
+
+  .remove-admin {
+    background: #dc3545;
+    color: white;
+  }
+  </style>
+</head>
+<body>
+
+    <div class="login" id="loginContainer">
+    <h2>تسجيل دخول الأدمن</h2>
+    <div class="input-group">
+      <label for="email">البريد الإلكتروني</label>
+      <input type="email" id="email">
+      <div class="error-msg" id="emailError"></div>
+    </div>
+
+    <div class="input-group">
+      <label for="password">كلمة المرور</label>
+      <input type="password" id="password">
+      <div class="error-msg" id="passwordError"></div>
+    </div>
+
+    <button id="loginBtn">تسجيل الدخول</button>
+  </div>
+
+  <div id="dashboard" class="container">
+    <h2>لوحة تحكم الأدمن</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <h2 id="onlineCount">0</h2>
+        <p>المتصلين الآن</p>
+      </div>
+      <div class="stat">
+        <h2 id="offlineCount">0</h2>
+        <p>غير متصلين</p>
+      </div>
+      <div class="stat">
+        <h2 id="messagesCount">0</h2>
+        <p>عدد الرسائل (آخر 24 ساعة)</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <h3>قائمة المستخدمين</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>الإيميل</th>
+            <th>آخر ظهور</th>
+            <th>الإجراء</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+    // إعداد Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBKLOqbBu5iWNU6FNHCcczCskhX3TggApq",
+  authDomain: "tjchating.firebaseapp.com",
+  databaseURL: "https://tjchating-default-rtdb.firebaseio.com",
+  projectId: "tjchating",
+  storageBucket: "tjchating.appspot.com",
+  messagingSenderId: "514678719694",
+  appId: "1:514678719694:web:cd3e0f2dc0055b0d583c9f"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.firestore();
+
+const loginBtn = document.getElementById("loginBtn");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const emailError = document.getElementById("emailError");
+const passwordError = document.getElementById("passwordError");
+
+loginBtn.addEventListener("click", async () => {
+  emailError.textContent = "";
+  passwordError.textContent = "";
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email) {
+    emailError.textContent = "الرجاء إدخال البريد الإلكتروني";
+    return;
+  }
+
+  if (!password) {
+    passwordError.textContent = "الرجاء إدخال كلمة المرور";
+    return;
+  }
+
+  try {
+    const adminDoc = await db.collection("admins").doc(email).get();
+    if (!adminDoc.exists) {
+      emailError.textContent = "هذا المستخدم ليس أدمن";
+      return;
+    }
+
+    const adminData = adminDoc.data();
+    if (adminData.password !== password) {
+      passwordError.textContent = "كلمة مرور خاطئة";
+      return;
+    }
+
+    // تسجيل دخول ناجح
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    startRealtimeStatusListener(); // بدء الاستماع لتحديثات المستخدمين المتصلين
+    await loadDashboard(); // تحميل بيانات اللوحة (المستخدمين والرسائل)
+
+    // تحديث بيانات المستخدمين والرسائل كل 5 ثواني (lastSeen)
+    setInterval(loadDashboard, 5000);
+
+  } catch (error) {
+    console.error("خطأ أثناء تسجيل الدخول:", error);
+    emailError.textContent = "حدث خطأ أثناء تسجيل الدخول";
+  }
+});
+
+// دالة تحديث عدد المتصلين والغير متصلين فورياً
+function startRealtimeStatusListener() {
+  db.collection("usersStatus").onSnapshot(snapshot => {
+    let onlineCount = 0;
+    let offlineCount = 0;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.state === "online") onlineCount++;
+      else offlineCount++;
+    });
+
+    document.getElementById("onlineCount").textContent = onlineCount;
+    document.getElementById("offlineCount").textContent = offlineCount;
+  });
+}
+
+// تحميل بيانات لوحة التحكم: المستخدمين وعدد الرسائل
+async function loadDashboard() {
+  try {
+    const usersSnapshot = await db.collection("users").get();
+    const adminsSnapshot = await db.collection("admins").get();
+    const now = Date.now();
+
+    const messagesSnapshot = await db.collection("messages")
+      .where("timestamp", ">=", now - 86400000)
+      .get();
+
+    document.getElementById("messagesCount").textContent = messagesSnapshot.size;
+
+    const adminEmails = adminsSnapshot.docs.map(doc => doc.id);
+
+    const table = document.getElementById("usersTable");
+    table.innerHTML = "";
+
+    usersSnapshot.forEach(doc => {
+      const user = doc.data();
+      const lastSeen = user.lastSeen || 0;
+      const readableLastSeen = lastSeen ? new Date(lastSeen).toLocaleString() : "غير معروف";
+      const isAdmin = adminEmails.includes(user.email);
+
+      const tr = document.createElement("tr");
+
+      // زر تعيين أو إزالة أدمن مع تحديث مباشر وحظر الزر أثناء التنفيذ
+      const button = document.createElement("button");
+      button.textContent = isAdmin ? "إزالة أدمن" : "تعيين كأدمن";
+      button.className = isAdmin ? "remove-admin admin-btn" : "make-admin admin-btn";
+
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        const originalText = button.textContent;
+        button.textContent = isAdmin ? "جارٍ الإزالة..." : "جارٍ التعيين...";
+        button.style.opacity = "0.7";
+
+        try {
+          if (isAdmin) {
+            await db.collection("admins").doc(user.email).delete();
+          } else {
+            await db.collection("admins").doc(user.email).set({
+              email: user.email,
+              name: user.name || "",
+              password: user.password || "123456",
+              lastSeen: user.lastSeen || 0
+            });
+          }
+          // فور تحديث البيانات، نعيد تحميل اللوحة بالكامل لعرض الحالة الجديدة
+          await loadDashboard();
+        } catch (error) {
+          console.error("❌ خطأ أثناء تعديل حالة الأدمن:", error);
+          alert("حدث خطأ، حاول مرة أخرى");
+        } finally {
+          button.disabled = false;
+          button.style.opacity = "1";
+        }
+      });
+
+      tr.innerHTML = `
+        <td>${user.name || "-"}</td>
+        <td>${user.email}</td>
+        <td>${readableLastSeen}</td>
+        <td></td>
+      `;
+      tr.querySelector("td:last-child").appendChild(button);
+
+      table.appendChild(tr);
+    });
+  } catch (error) {
+    console.error("❌ خطأ في تحميل لوحة التحكم:", error);
+  }
+}
+
+</script>
+
+</body>
+</html>

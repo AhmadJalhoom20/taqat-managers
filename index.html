@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tj Chat</title>
+    <script  src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script  src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
+    <script  src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <script  src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script  src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.min.js"></script>
+
+  <link rel="shortcut icon" href="logo.png" type="image/x-icon">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="logo">الاداري - Tj Chat</div>
+            <div id="authContent">
+                <!-- From Uiverse.io by mRcOol7 --> 
+<button id="googleSignInBtn" class="button">
+  Sign in with Google
+  <span class="google-icon">
+    <svg viewBox="0 0 48 48">
+      <title>Google Logo</title>
+      <clipPath id="g">
+        <path
+          d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"
+        ></path>
+      </clipPath>
+      <g clip-path="url(#g)" class="colors">
+        <path d="M0 37V11l17 13z" fill="#FBBC05"></path>
+        <path d="M0 11l17 13 7-6.1L48 14V0H0z" fill="#EA4335"></path>
+        <path d="M0 37l30-23 7.9 1L48 0v48H0z" fill="#34A853"></path>
+        <path d="M48 48L17 24l-4-3 35-10z" fill="#4285F4"></path>
+      </g>
+    </svg>
+  </span>
+</button>
+
+                  
+                
+                <input type="text" id="signupName" placeholder="الاسم" required autocomplete="none"/>
+                <input type="email" id="emailInput" class="auth-input" placeholder="البريد الإلكتروني" required autocomplete="none"/>
+                <input type="password" id="passwordInput" class="auth-input" placeholder="كلمة المرور"  required/>
+               
+                <div id="showpass">
+                    <input type="checkbox" id="toggleCheckbox" />
+                    <label for="toggleCheckbox" ><img id="toggleLabel" src="on.png" alt=""></label>
+                </div>
+                    
+                    
+                    
+                <div id="btns">
+                    <button id="loginBtn" class="auth-button">تسجيل الدخول</button>
+                    <button id="registerBtn" class="auth-button">إنشاء حساب</button>
+                    <a id="Resetpas" href="#ResetPassword">نسيت كلمة المرور ؟</a>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resetSection">
+        <h3>تغيير كلمة المرور</h3>
+        <input type="email" id="resetEmail" placeholder="ادخل بريدك الإلكتروني" autocomplete="off" />
+        <button id="resetbtn" onclick="resetPassword()">إرسال رابط إعادة تعيين كلمة المرور</button>
+      </div>
+
+
+    <div id="chatContainer" class="container" style="display: none;">
+        
+        <button id="groupsToggle" class="mobile-toggle">📋</button>
+    
+        <div id="attendanceModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="close">&times;</span>
+    <h2>تسجيل الحضور الاداري اليومي</h2>
+    <button id="attendanceBtn">سجل حضوري الآن</button>
+    <p id="attendanceStatus"></p>
+  </div>
+</div>
+
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+        
+   
+       
+
+
+        <div id="groupsSidebar" class="groups-sidebar">
+         
+            <div class="sidebar-title">المحادثات</div>
+            <button id="openModalBtn">✅ سجل حضورك الاداري اليوم</button>
+             <a class="huddle" href="https://tj-chat.netlify.app/"><button>انتقال الى Tj Chat العام</button></a>
+        <details id="groupsDetails" open>
+                  <summary>القروبات</summary>
+                    <div id="groupsList">
+                
+                    </div>  
+              </details>
+
+
+
+            <button id="createGroupBtn" ><h1>➕</h1> اضافة قناة</button>
+                      <details id="privateMessagesDetails">
+                  <summary>الرسائل الخاصة</summary>
+                    <div id="usersList"></div>   
+              </details>
+            <div id="userso" class="user-info  user-item">
+              
+                <button id="logoutBtn" class="Btn" >
+  
+  <div  class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+  
+  <div  class="text">Logout</div>
+</button>
+
+            
+                <span id="userEmail"></span>
+            </div>
+
+
+        </div>
+
+<div id="modalOverlay">
+        <div id="requestsModal" style="display:none;">
+            <h3>طلبات الانضمام</h3>
+            <div id="joinRequestsContainer"></div>
+            <button onclick="close_modal()" id="close_requestsModal">اغلاق </button>
+          </div>
+        </div>
+      
+        <div class="chat-area">
+            <div>
+            <div class="chat-header"> 
+
+              <h1 id="chatHeader">مرحبا بك في Tj Chat الاداري</h1>
+              
+            </div>
+            <div>
+                <button id="showRequestsBtn">📥</button>
+                
+            </div>
+
+
+           
+
+
+
+        </div>
+            <div class="messages-container" id="messagesContainer"></div>
+            <div id="mentionsList"></div>
+                <div id="input_area" class="message-input-area">
+              
+<div class="btn-wrapper" onclick="toggleRecording()">
+  <button class="btn">
+    <span class="btn-txt">Rec</span>
+    <div class="dot pulse"></div>
+  </button>
+
+</div>
+  <span id="recordingStatus" style="margin-right: 10px;"></span>
+                    
+                 
+
+<div class="messageBox">
+  <div class="fileUploadWrapper">
+    <label for="mediaInput">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 337 337">
+        <circle
+          stroke-width="20"
+          stroke="#6c6c6c"
+          fill="none"
+          r="158.5"
+          cy="168.5"
+          cx="168.5"
+        ></circle>
+        <path
+          stroke-linecap="round"
+          stroke-width="25"
+          stroke="#6c6c6c"
+          d="M167.759 79V259"
+        ></path>
+        <path
+          stroke-linecap="round"
+          stroke-width="25"
+          stroke="#6c6c6c"
+          d="M79 167.138H259"
+        ></path>
+      </svg>
+      <span class="tooltip">Add an Medias/file ^^ Max 1MB</span>
+    </label>
+    <input type="file" id="mediaInput" name="file" />
+  </div>
+  
+  <input placeholder="Message..." type="text" id="messageInput" />
+  <button id="sendBtn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 664 663">
+      <path
+        fill="none"
+        d="M646.293 331.888L17.7538 17.6187L155.245 331.888M646.293 331.888L17.753 646.157L155.245 331.888M646.293 331.888L318.735 330.228L155.245 331.888"
+      ></path>
+      <path
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        stroke-width="33.67"
+        stroke="#6c6c6c"
+        d="M646.293 331.888L17.7538 17.6187L155.245 331.888M646.293 331.888L17.753 646.157L155.245 331.888M646.293 331.888L318.735 330.228L155.245 331.888"
+      ></path>
+    </svg>
+  </button>
+</div>
+
+
+                    
+                </div>
+                <div id="mediaPreview"></div>
+                
+        </div>
+
+             <div id="joinRequestsModal" style="display:none">
+                <h3>طلبات الانضمام</h3>
+                <div id="requestsList"></div>
+                <button onclick="document.getElementById('joinRequestsModal').style.display='none'">إغلاق</button>
+              </div>
+
+
+
+<!-- Overlay خلف المودال -->
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:99;"></div>
+
+<!-- مودال إنشاء قناة -->
+<div id="createGroupModal" style="
+    display:none !important; 
+    position: fixed; 
+    top:10%; 
+    left:50%; 
+    transform: translateX(-50%);
+    background: #1e1e1e; 
+    padding: 25px; 
+    border-radius: 12px; 
+    color: white; 
+    z-index:100; 
+    width:550px; 
+    max-width:95%; 
+    box-shadow:0 8px 24px rgba(0,0,0,0.5); 
+    display:flex; 
+    gap:20px;
+    position:relative;
+    height:70%;
+">
+
+  <!-- زر إغلاق أعلى يمين -->
+  <button id="closeModalBtn" style="
+    position:absolute; 
+    top:10px; 
+    left:10px; 
+    background:none; 
+    border:none; 
+    color:#aaa; 
+    font-size:20px; 
+    cursor:pointer;
+  ">&times;</button>
+
+  <!-- الجهة اليسرى: خطوات المودال -->
+  <div style="flex:1;">
+
+    <!-- STEP 1: اختيار Template -->
+    <div class="step" id="groupStep1">
+      <h3 style="margin-top:0; font-size:1.4em;">اختر نوع القناة</h3>
+      <label class="channel-option" style="display:block; padding:10px; margin:10px 0; background:#2a2a2a; border-radius:5px; cursor:pointer;">
+        <input type="radio" name="groupTemplate" value="branch" style="margin-right:10px;"/>
+        فرع ل TAQAT
+      </label>
+
+      <label class="channel-option" style="display:block; padding:10px; margin:10px 0; background:#2a2a2a; border-radius:5px; cursor:pointer;">
+        <input type="radio" name="groupTemplate" value="project" style="margin-right:10px;"/>
+        مشروع
+      </label>
+
+      <label class="channel-option" style="display:block; padding:10px; margin:10px 0; background:#2a2a2a; border-radius:5px; cursor:pointer;">
+        <input type="radio" name="groupTemplate" value="friends" style="margin-right:10px;"/>
+        لمّة الأصدقاء
+      </label>
+
+      <button id="groupNextBtn" style="margin-top:20px; padding:8px 16px; border:none; border-radius:5px; background:#4caf50; color:white; cursor:pointer;">
+        NEXT
+      </button>
+    </div>
+
+    <!-- STEP 2: تفاصيل القناة -->
+    <div class="step" id="groupStep2" style="display:none;">
+      <h3 style="margin-top:0; font-size:1.4em;">تفاصيل القناة</h3>
+
+      <!-- اسم القناة -->
+      <label style="display:block; margin:10px 0 5px;">اسم القناة</label>
+      <input type="text" id="newGroupNameInput" placeholder="e.g., project-updates" 
+             style="width:100%; padding:8px; border-radius:5px; border:none; outline:none; margin-bottom:15px;"/>
+
+      <!-- الخصوصية -->
+      <label style="display:block; margin-bottom:5px; font-weight:bold;">الخصوصية</label>
+
+      <label style="display:block; padding:8px; margin:5px 0; background:#2a2a2a; border-radius:5px; cursor:pointer;">
+        <input type="radio" name="newGroupPrivacy" value="public" style="margin-right:8px;"/>
+        عام
+        <div style="font-size:0.85em; color:#aaa; margin-top:3px;">
+          أي شخص يمكنه الانضمام ومشاهدة القناة
+        </div>
+      </label>
+
+      <label style="display:block; padding:8px; margin:5px 0; background:#2a2a2a; border-radius:5px; cursor:pointer;">
+        <input type="radio" name="newGroupPrivacy" value="private" style="margin-right:8px;"/>
+        خاص
+        <div style="font-size:0.85em; color:#aaa; margin-top:3px;">
+          تحتاج موافقة للانضمام إلى القناة
+        </div>
+      </label>
+
+      
+
+      <!-- أزرار -->
+      <div style="text-align:right; margin-top:10px;">
+        <button id="cancelGroupBtn" style="margin-right:10px; padding:6px 12px; border:none; border-radius:5px; background:#555; color:white; cursor:pointer;">إلغاء</button>
+        <button id="saveGroupBtn" style="padding:6px 12px; border:none; border-radius:5px; background:#4caf50; color:white; cursor:pointer;">إنشاء</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- الجهة اليمنى: صورة -->
+  <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+    <img id="groupSideImage" src="" alt="صورة توضيحية" style="width:180px; height:180px; object-fit:cover; border-radius:10px;">
+  </div>
+
+</div>
+
+
+
+
+
+
+  
+
+    <script src="script.js"></script>
+
+</body>
+</html>
